@@ -1,17 +1,16 @@
 class CheckInLog {
   final int? id;
-  final int eventId;
+  final int? eventId;
   final String guestName;
   final String checkinTime;
 
   CheckInLog({
     this.id,
-    required this.eventId,
+    this.eventId = 1,
     required this.guestName,
     required this.checkinTime,
   });
 
-  // Konversi objek CheckInLog menjadi Map untuk disimpan ke database
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -21,13 +20,12 @@ class CheckInLog {
     };
   }
 
-  // Factory untuk membuat objek CheckInLog dari Map (hasil query database)
   factory CheckInLog.fromMap(Map<String, dynamic> map) {
     return CheckInLog(
-      id: map['id'],
-      eventId: map['event_id'],
-      guestName: map['guest_name'],
-      checkinTime: map['checkin_time'],
+      id: map['id'] as int?,
+      eventId: map['event_id'] as int?,
+      guestName: map['guest_name'] as String,
+      checkinTime: map['checkin_time'] as String,
     );
   }
 }

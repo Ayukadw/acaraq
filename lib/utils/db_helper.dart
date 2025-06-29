@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../models/event.dart';
 import '../models/checkin_log.dart';
@@ -11,9 +12,12 @@ class DBHelper {
 
   DBHelper._init();
 
+  static const _dbName = 'event_manager.db';
+  static const _dbVersion = 3; // Versi saat ini (karena ada imageUrl)
+
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('event_manager.db');
+    _database = await _initDB(_dbName);
     return _database!;
   }
 
@@ -23,47 +27,74 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: _dbVersion,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
   Future _createDB(Database db, int version) async {
-    // User Table
-    await db.execute('''
+    // Tabel User
+    await db.execute(''' 
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL,
-        password TEXT NOT NULL
+        password TEXT NOT NULL,
+        role TEXT DEFAULT 'user'
       )
     ''');
 
-    // Event Table
-    await db.execute('''
+    // Tabel Event
+    await db.execute(''' 
       CREATE TABLE events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT,
+        title TEXT NOT NULL,
         description TEXT,
-        date TEXT,
-        time TEXT,
-        location TEXT,
-        hostName TEXT,
-        notes TEXT,
-        latitude REAL,
-        longitude REAL
+        date TEXT NOT NULL,
+        time TEXT NOT NULL,
+        location TEXT NOT NULL,
+        hostName TEXT NOT NULL,
+        imageUrl TEXT
       )
     ''');
 
-    // Check-In Log Table
-    await db.execute('''
+    // Tabel Check-In Log
+    await db.execute(''' 
       CREATE TABLE checkin_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        event_id INTEGER,
-        guest_name TEXT,
-        checkin_time TEXT,
+        event_id INTEGER NOT NULL,
+        guest_name TEXT NOT NULL,
+        checkin_time TEXT NOT NULL,
         FOREIGN KEY (event_id) REFERENCES events(id)
       )
     ''');
+
+    // Tambah static admin jika belum ada
+    final existingAdmin = await db.query(
+      'users',
+      where: 'username = ?',
+      whereArgs: ['admin'],
+    );
+
+    if (existingAdmin.isEmpty) {
+      await db.insert('users', {
+        'username': 'admin',
+        'password': 'admin123',
+        'role': 'admin',
+      });
+    }
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    debugPrint('[DEBUG] Upgrading DB from version $oldVersion to $newVersion');
+
+    if (oldVersion < 2) {
+      await db.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+    }
+
+    if (oldVersion < 3) {
+      await db.execute("ALTER TABLE events ADD COLUMN imageUrl TEXT");
+    }
   }
 
   // ================= USER =================
@@ -116,17 +147,13 @@ class DBHelper {
       'events',
       event.toMap(),
       where: 'id = ?',
-      whereArgs: [event.id],
+      whereArgs: [event.id!],
     );
   }
 
   Future<int> deleteEvent(int id) async {
     final db = await instance.database;
-    return await db.delete(
-      'events',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('events', where: 'id = ?', whereArgs: [id]);
   }
 
   // ================= CHECK-IN LOG =================
@@ -143,6 +170,25 @@ class DBHelper {
       whereArgs: [eventId],
     );
     return result.map((map) => CheckInLog.fromMap(map)).toList();
+  }
+
+  Future<List<CheckInLog>> getAllLogs() async {
+    final db = await instance.database;
+    final result = await db.query('checkin_logs');
+    return result.map((map) => CheckInLog.fromMap(map)).toList();
+  }
+
+  Future<int> deleteCheckInLog(int logId) async {
+    final db = await instance.database;
+    return await db.delete('checkin_logs', where: 'id = ?', whereArgs: [logId]);
+  }
+
+  // ================= DEBUG =================
+  Future<void> deleteDatabaseFile() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, _dbName);
+    await deleteDatabase(path);
+    debugPrint('[DEBUG] Database deleted successfully');
   }
 
   Future close() async {

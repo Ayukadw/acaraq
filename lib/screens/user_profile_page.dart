@@ -3,14 +3,14 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+class UserProfilePage extends StatelessWidget {
+  const UserProfilePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
-    final username = authProvider.user?.username ?? 'Admin';
+    final username = authProvider.user?.username ?? 'User';
 
     final isDarkMode = themeProvider.isDarkMode;
 
@@ -168,6 +168,41 @@ class SettingsPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 1,
+        selectedItemColor:
+            isDarkMode ? const Color(0xFFFFC100) : const Color(0xFF58018B),
+        unselectedItemColor: Colors.grey,
+        backgroundColor:
+            isDarkMode ? const Color(0xFF69147D) : const Color(0xFFDDB7F3),
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/user_home');
+          }
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home,
+              color:
+                  isDarkMode
+                      ? const Color(0xFFFFC100)
+                      : const Color(0xFF58018B),
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.person,
+              color:
+                  isDarkMode
+                      ? const Color(0xFFFFC100)
+                      : const Color(0xFF58018B),
+            ),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }

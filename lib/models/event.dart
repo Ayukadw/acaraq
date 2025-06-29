@@ -6,9 +6,7 @@ class Event {
   final String time;
   final String location;
   final String hostName;
-  final String notes;
-  final double latitude;
-  final double longitude;
+  final String? imageUrl; // Kolom tambahan untuk gambar
 
   Event({
     this.id,
@@ -18,9 +16,7 @@ class Event {
     required this.time,
     required this.location,
     required this.hostName,
-    required this.notes,
-    required this.latitude,
-    required this.longitude,
+    this.imageUrl,
   });
 
   Map<String, dynamic> toMap() {
@@ -32,24 +28,20 @@ class Event {
       'time': time,
       'location': location,
       'hostName': hostName,
-      'notes': notes,
-      'latitude': latitude,
-      'longitude': longitude,
+      'imageUrl': imageUrl,
     };
   }
 
   factory Event.fromMap(Map<String, dynamic> map) {
     return Event(
-      id: map['id'],
-      title: map['title'],
-      description: map['description'],
-      date: map['date'],
-      time: map['time'],
-      location: map['location'],
-      hostName: map['hostName'],
-      notes: map['notes'],
-      latitude: map['latitude'],
-      longitude: map['longitude'],
+      id: map['id'] as int?,
+      title: map['title'] as String,
+      description: map['description'] as String,
+      date: map['date'] as String,
+      time: map['time'] as String,
+      location: map['location'] as String,
+      hostName: map['hostName'] as String,
+      imageUrl: map['imageUrl'] as String?,
     );
   }
 }
