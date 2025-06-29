@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
-import '../providers/event_provider.dart';
-import '../models/checkin_log.dart';
+import '../../providers/event_provider.dart';
+import '../../models/checkin_log.dart';
 
 class VerifyPaymentPage extends StatelessWidget {
   final File paymentImage;

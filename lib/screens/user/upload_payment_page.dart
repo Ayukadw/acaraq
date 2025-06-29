@@ -1,11 +1,12 @@
 import 'dart:io';
+import 'package:acaraq/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import '../models/event.dart';
-import '../providers/auth_provider.dart';
-import '../utils/db_helper.dart';
+import '../../models/event.dart';
+import '../../providers/auth_provider.dart';
+import '../../utils/db_helper.dart';
 
 class UploadPaymentPage extends StatefulWidget {
   final Event event;
@@ -67,10 +68,15 @@ class _UploadPaymentPageState extends State<UploadPaymentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Upload Bukti Pembayaran'),
-        backgroundColor: Colors.orange,
+        backgroundColor:
+            themeProvider.isDarkMode
+                ? const Color(0xFF58018B)
+                : const Color(0xFFECCBFF),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -94,19 +100,53 @@ class _UploadPaymentPageState extends State<UploadPaymentPage> {
               children: [
                 ElevatedButton.icon(
                   onPressed: () => _pickImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo),
-                  label: const Text('Galeri'),
+                  icon: Icon(
+                    Icons.photo,
+                    color:
+                        themeProvider.isDarkMode
+                            ? Color(0xFF58018B)
+                            : Color(0xFFFFC100),
+                  ),
+                  label: Text(
+                    'Galeri',
+                    style: TextStyle(
+                      color:
+                          themeProvider.isDarkMode
+                              ? Color(0xFF58018B)
+                              : Color(0xFFFFC100),
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor:
+                        themeProvider.isDarkMode
+                            ? Color(0xFFFFC100)
+                            : Color(0xFF58018B),
                   ),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton.icon(
                   onPressed: () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Kamera'),
+                  icon: Icon(
+                    Icons.camera_alt,
+                    color:
+                        themeProvider.isDarkMode
+                            ? Color(0xFF58018B)
+                            : Color(0xFFFFC100),
+                  ),
+                  label: Text(
+                    'Kamera',
+                    style: TextStyle(
+                      color:
+                          themeProvider.isDarkMode
+                              ? Color(0xFF58018B)
+                              : Color(0xFFFFC100),
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor:
+                        themeProvider.isDarkMode
+                            ? Color(0xFFFFC100)
+                            : Color(0xFF58018B),
                   ),
                 ),
               ],
@@ -115,10 +155,21 @@ class _UploadPaymentPageState extends State<UploadPaymentPage> {
             ElevatedButton(
               onPressed: _uploadImage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor:
+                    themeProvider.isDarkMode
+                        ? Color(0xFFFFC100)
+                        : Color(0xFF58018B),
                 minimumSize: const Size.fromHeight(48),
               ),
-              child: const Text('Unggah Bukti Pembayaran'),
+              child: Text(
+                'Unggah Bukti Pembayaran',
+                style: TextStyle(
+                  color:
+                      themeProvider.isDarkMode
+                          ? Color(0xFF58018B)
+                          : Color(0xFFFFC100),
+                ),
+              ),
             ),
           ],
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/home_page.dart';
+import 'screens/admin/home_page.dart';
 import 'screens/login_page.dart';
 import 'screens/register_page.dart';
 import 'screens/splash_screen.dart';
@@ -9,17 +9,10 @@ import 'providers/auth_provider.dart';
 import 'providers/event_provider.dart';
 import 'providers/theme_provider.dart';
 import 'utils/db_helper.dart'; // Pastikan untuk mengimpor DBHelper
-import 'screens/user_home_page.dart';
+import 'screens/user/user_home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Memastikan inisialisasi widget
-
-  // Menghapus database lama jika diperlukan
-  await DBHelper.instance.deleteDatabaseFile();
-
-  // Hapus SharedPreferences
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.clear();
 
   runApp(const EventApp());
 }

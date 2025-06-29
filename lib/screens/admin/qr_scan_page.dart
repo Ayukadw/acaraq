@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert'; // Untuk JSON encoding dan decoding
-import '../models/checkin_log.dart';
-import '../providers/event_provider.dart';
+import '../../models/checkin_log.dart';
+import '../../providers/event_provider.dart';
 import 'visitor_list_page.dart';
 
 class QRScanPage extends StatefulWidget {
@@ -94,12 +94,13 @@ class _QRScanPageState extends State<QRScanPage> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color containerColor =
         isDarkMode ? const Color(0xFF8240A8) : Colors.white;
-    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF58018B);
+    final Color textColor = isDarkMode ? Color(0xFFFFC100) : Color(0xFF58018B);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scan QR Code'),
-        backgroundColor: isDarkMode ? const Color(0xFF58018B) : Colors.orange,
+        backgroundColor:
+            isDarkMode ? const Color(0xFF58018B) : Color(0xFFECCBFF),
       ),
       body: Column(
         children: [

@@ -101,10 +101,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   'Buat akun untuk mulai mengelola acara.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDarkMode ? Colors.white : Colors.black54,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 // Username Field
@@ -143,8 +146,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color:
                             isDarkMode
                                 ? const Color(0xFFFFC100)
@@ -169,7 +172,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   obscureText: _obscurePassword,
                   decoration: const InputDecoration(
                     labelText: 'Konfirmasi Password',
-                    border: OutlineInputBorder(),
                   ),
                   validator:
                       (value) =>
@@ -183,9 +185,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 48,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(
-                        0xFFFFC100,
-                      ), // Warna tombol oranye
+                      backgroundColor:
+                          isDarkMode ? Color(0xFFFFC100) : Color(0xFF580188),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -196,9 +197,15 @@ class _RegisterPageState extends State<RegisterPage> {
                             ? const CircularProgressIndicator(
                               color: Colors.white,
                             )
-                            : const Text(
+                            : Text(
                               'Daftar',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color:
+                                    isDarkMode
+                                        ? Color(0xFF58018B)
+                                        : Color(0xFFFFC100),
+                              ),
                             ),
                   ),
                 ),

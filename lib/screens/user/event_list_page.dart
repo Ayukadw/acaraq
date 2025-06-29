@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/event_provider.dart';
-import '../providers/auth_provider.dart';
+import '../../providers/event_provider.dart';
+import '../../providers/auth_provider.dart';
 //import '../models/event.dart';
-import 'add_edit_event_page.dart';
+import '../admin/add_edit_event_page.dart';
 import 'event_detail_page.dart';
 
 class EventListPage extends StatefulWidget {

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
-import 'home_page.dart';
-import 'user_home_page.dart';
+import 'admin/home_page.dart';
+import 'user/user_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -104,10 +104,13 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   'Kelola acara dan undangan dengan mudah.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDarkMode ? Colors.white : Colors.black54,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
@@ -144,8 +147,8 @@ class _LoginPageState extends State<LoginPage> {
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color:
                             isDarkMode
                                 ? const Color(0xFFFFC100)
@@ -169,7 +172,8 @@ class _LoginPageState extends State<LoginPage> {
                   height: 48,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFC100),
+                      backgroundColor:
+                          isDarkMode ? Color(0xFFFFC100) : Color(0xFF580188),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -180,9 +184,15 @@ class _LoginPageState extends State<LoginPage> {
                             ? const CircularProgressIndicator(
                               color: Colors.white,
                             )
-                            : const Text(
+                            : Text(
                               'Masuk',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color:
+                                    isDarkMode
+                                        ? Color(0xFF58018B)
+                                        : Color(0xFFFFC100),
+                              ),
                             ),
                   ),
                 ),

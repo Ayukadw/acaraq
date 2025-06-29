@@ -1,12 +1,12 @@
 import 'dart:io';
-import 'package:acaraq/screens/event_detail_page.dart';
+import 'package:acaraq/screens/user/event_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
-import '../providers/theme_provider.dart';
-import '../models/event.dart';
-import '../utils/db_helper.dart';
-import 'user_profile_page.dart'; // Tambahkan import
+import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
+import '../../models/event.dart';
+import '../../utils/db_helper.dart';
+import 'user_profile_page.dart';
 
 class UserHomePage extends StatefulWidget {
   const UserHomePage({Key? key}) : super(key: key);
@@ -53,35 +53,48 @@ class _UserHomePageState extends State<UserHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Halo, $username',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                'Mari jelajahi acara-acara yang ada!',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: textColor.withOpacity(0.7),
-                ),
-              ),
-              CircleAvatar(
-                radius: 22,
-                backgroundColor:
-                    themeProvider.isDarkMode
-                        ? const Color(0xFFFFC100)
-                        : const Color(0xFF58018B),
-                child: Icon(
-                  Icons.person,
-                  color:
-                      themeProvider.isDarkMode
-                          ? const Color(0xFF58018B)
-                          : const Color(0xFFFFC100),
-                ),
+              // HEADER dibungkus Row supaya sejajar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Halo, $username',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Mari jelajahi acara-acara yang ada!',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: textColor.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor:
+                        themeProvider.isDarkMode
+                            ? const Color(0xFFFFC100)
+                            : const Color(0xFF58018B),
+                    child: Icon(
+                      Icons.person,
+                      color:
+                          themeProvider.isDarkMode
+                              ? const Color(0xFF58018B)
+                              : const Color(0xFFFFC100),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               Text(

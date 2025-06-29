@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/event_provider.dart';
-import '../providers/theme_provider.dart';
-import '../models/checkin_log.dart';
+import '../../providers/event_provider.dart';
+import '../../providers/theme_provider.dart';
+import '../../models/checkin_log.dart';
 import 'home_page.dart';
 
 class VisitorListPage extends StatefulWidget {

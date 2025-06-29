@@ -2,9 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../models/event.dart';
-import '../providers/event_provider.dart';
-import '../utils/db_helper.dart';
+import '../../models/event.dart';
+import '../../providers/event_provider.dart';
+import '../../utils/db_helper.dart';
+import '../../providers/theme_provider.dart';
 
 class AddEditEventPage extends StatefulWidget {
   final Event? event;
@@ -156,12 +157,14 @@ class _AddEditEventPageState extends State<AddEditEventPage> {
     VoidCallback? onTap,
     bool isRequired = true,
   }) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
         controller: controller,
         readOnly: readOnly,
         onTap: onTap,
+        style: TextStyle(color: isDarkMode ? Color(0xFFD9D9D9) : Colors.black),
         validator:
             isRequired
                 ? (value) =>
@@ -169,8 +172,11 @@ class _AddEditEventPageState extends State<AddEditEventPage> {
                 : null,
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: TextStyle(
+            color: isDarkMode ? Color(0xFFD9D9D9) : Colors.black,
+          ),
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: isDarkMode ? Color(0xFF8240A8) : Colors.grey[100],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -182,20 +188,29 @@ class _AddEditEventPageState extends State<AddEditEventPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+    final appBarTextColor = isDarkMode ? Color(0xFFFFC100) : Color(0xFF58018B);
+
     return Scaffold(
+      backgroundColor: isDarkMode ? Color(0xFF58018B) : Color(0xFFECCBFF),
       appBar: AppBar(
-        title: Text(widget.event == null ? 'Tambah Acara' : 'Edit Acara'),
-        backgroundColor: const Color(0xFFFFC100),
+        backgroundColor: isDarkMode ? Color(0xFF58018B) : Color(0xFFECCBFF),
+        title: Text(
+          widget.event == null ? 'Tambah Acara' : 'Edit Acara',
+          style: TextStyle(color: appBarTextColor),
+        ),
+        iconTheme: IconThemeData(color: appBarTextColor),
         actions:
             widget.event != null
                 ? [
                   IconButton(
-                    icon: const Icon(Icons.delete),
+                    icon: Icon(Icons.delete, color: appBarTextColor),
                     onPressed: _deleteEvent,
                   ),
                 ]
                 : null,
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -266,10 +281,16 @@ class _AddEditEventPageState extends State<AddEditEventPage> {
                 _buildInputField(_hostController, 'Nama Tuan Rumah'),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.save),
+                  icon: Icon(
+                    Icons.save,
+                    color: isDarkMode ? Color(0xFF58018B) : Color(0xFFFFC100),
+                  ),
                   label: const Text('Simpan'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFC100),
+                    backgroundColor:
+                        isDarkMode ? Color(0xFFFFC100) : Color(0xFF58018B),
+                    foregroundColor:
+                        isDarkMode ? Color(0xFF58018B) : Color(0xFFFFC100),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     textStyle: const TextStyle(fontSize: 16),
                     shape: RoundedRectangleBorder(

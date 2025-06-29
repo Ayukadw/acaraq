@@ -1,14 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
-import '../providers/theme_provider.dart';
-import '../providers/event_provider.dart';
-import '../models/event.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
+import '../../providers/event_provider.dart';
 import 'add_edit_event_page.dart';
 import 'qr_scan_page.dart';
 import 'settings_page.dart';
-import 'visitor_list_page.dart';
+import 'visitor_list_page.dart'; // Pastikan visitor_list_page diimport
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    // Load data events saat pertama masuk
     Future.microtask(() {
       Provider.of<EventProvider>(context, listen: false).loadEvents();
     });
@@ -228,8 +228,7 @@ class _HomePageState extends State<HomePage> {
                                             )
                                             : Image.file(
                                               File(event.imageUrl!),
-                                              key:
-                                                  UniqueKey(), // 💥 FIX UTAMA: bikin rebuild image
+                                              key: UniqueKey(),
                                               width: double.infinity,
                                               height: 150,
                                               fit: BoxFit.cover,
@@ -262,8 +261,8 @@ class _HomePageState extends State<HomePage> {
                                               fontWeight: FontWeight.bold,
                                               color:
                                                   themeProvider.isDarkMode
-                                                      ? const Color(0xFF000000)
-                                                      : Colors.white,
+                                                      ? Color(0xFF58018B)
+                                                      : Color(0xFFFFC100),
                                             ),
                                           ),
                                         ),
@@ -273,8 +272,8 @@ class _HomePageState extends State<HomePage> {
                                             fontSize: 12,
                                             color:
                                                 themeProvider.isDarkMode
-                                                    ? const Color(0xFF000000)
-                                                    : Colors.white,
+                                                    ? Color(0xFF58018B)
+                                                    : Color(0xFFFFC100),
                                           ),
                                         ),
                                       ],
@@ -288,8 +287,8 @@ class _HomePageState extends State<HomePage> {
                                             fontSize: 12,
                                             color:
                                                 themeProvider.isDarkMode
-                                                    ? const Color(0xFF000000)
-                                                    : Colors.white,
+                                                    ? Color(0xFF58018B)
+                                                    : Color(0xFFFFC100),
                                           ),
                                         ),
                                       ],
@@ -297,19 +296,39 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                               ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => VisitorListPage(
-                                            eventId: event.id!,
-                                          ),
+                              // Tombol List Pengunjung di tengah
+                              Center(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        themeProvider.isDarkMode
+                                            ? Color(0xFF58018B)
+                                            : Color(0xFFECCBFF),
+                                    foregroundColor:
+                                        themeProvider.isDarkMode
+                                            ? Color(0xFFFFC100)
+                                            : Color(0xFF58018B),
+                                    minimumSize: Size(double.infinity, 48),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(12),
+                                        bottomRight: Radius.circular(12),
+                                      ),
                                     ),
-                                  );
-                                },
-                                child: const Text('List Pengunjung'),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => VisitorListPage(
+                                              eventId: event.id!,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('List Pengunjung'),
+                                ),
                               ),
                             ],
                           ),

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../models/event.dart';
+import '../../models/event.dart';
 import 'upload_payment_page.dart';
-import '../providers/theme_provider.dart';
-import '../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
+import '../../providers/auth_provider.dart';
 import 'dart:convert';
 
 class EventDetailPage extends StatefulWidget {
@@ -59,7 +59,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       appBar: AppBar(
         title: const Text('Detail Acara'),
         backgroundColor:
-            themeProvider.isDarkMode ? const Color(0xFF58018B) : Colors.orange,
+            themeProvider.isDarkMode ? Color(0xFF58018B) : Color(0xFFECCBFF),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -71,7 +71,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: themeProvider.isDarkMode ? Colors.white : Colors.orange,
+                color:
+                    themeProvider.isDarkMode
+                        ? Color(0xFFFFC100)
+                        : Color(0xFF58018B),
               ),
             ),
             const SizedBox(height: 10),
@@ -131,7 +134,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
             ] else ...[
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor:
+                      themeProvider.isDarkMode
+                          ? Color(0xFFFFC100)
+                          : Color(0xFF58018B),
                   minimumSize: const Size.fromHeight(48),
                 ),
                 onPressed: () async {
@@ -151,7 +157,15 @@ class _EventDetailPageState extends State<EventDetailPage> {
                     _checkPaymentStatus();
                   }
                 },
-                child: const Text('Unggah Bukti Pembayaran'),
+                child: Text(
+                  'Unggah Bukti Pembayaran',
+                  style: TextStyle(
+                    color:
+                        themeProvider.isDarkMode
+                            ? Color(0xFF58018B)
+                            : Color(0xFFFFC100),
+                  ),
+                ),
               ),
             ],
           ],
