@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert'; // Untuk JSON encoding dan decoding
 import '../models/checkin_log.dart';
 import '../providers/event_provider.dart';
 import 'visitor_list_page.dart';
@@ -13,26 +14,35 @@ class QRScanPage extends StatefulWidget {
 }
 
 class _QRScanPageState extends State<QRScanPage> {
-  String scannedText = ''; // This will hold the scanned username
+  String scannedText = '';
 
-  // When QR is detected
   void _onDetect(BarcodeCapture capture) {
     final List<Barcode> barcodes = capture.barcodes;
     for (final barcode in barcodes) {
       final code = barcode.rawValue;
       if (code != null && scannedText != code) {
-        setState(
-          () => scannedText = code,
-        ); // Store the scanned QR code value (username)
+        setState(() => scannedText = code);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('QR Ditemukan: $code')),
-        ); // Show QR feedback
+        // Coba decode QR yang berisi JSON
+        try {
+          final data = jsonDecode(code);
+          final eventId = data['event_id'];
+          final username = data['username'];
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('QR ditemukan: Event $eventId - User $username'),
+            ),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('QR tidak valid')));
+        }
       }
     }
   }
 
-  // Now when admin clicks 'Tandai Check-In', they should be logged with username
   Future<void> _handleCheckIn() async {
     if (scannedText.isEmpty) {
       ScaffoldMessenger.of(
@@ -41,31 +51,41 @@ class _QRScanPageState extends State<QRScanPage> {
       return;
     }
 
-    final eventProvider = Provider.of<EventProvider>(context, listen: false);
+    // Decode QR
+    final data = jsonDecode(scannedText);
+    final eventId = data['event_id'];
+    final username = data['username'];
 
-    final guestName = scannedText; // Use the scanned username from QR code
+    if (eventId == null || username == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Data QR code tidak lengkap.')),
+      );
+      return;
+    }
+
+    final eventProvider = Provider.of<EventProvider>(context, listen: false);
 
     final now = DateTime.now();
     final checkinTime =
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
-    // Add the check-in log with guestName (which is the username)
+    // Tambahkan log check-in
     await eventProvider.addCheckIn(
       CheckInLog(
-        guestName: guestName, // Store the scanned username here
+        eventId: eventId,
+        guestName: username,
         checkinTime: checkinTime,
       ),
     );
 
+    // Pindah ke VisitorListPage khusus untuk eventId ini
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (_) => const VisitorListPage(),
-      ), // No need for eventId, just show the list
+      MaterialPageRoute(builder: (_) => VisitorListPage(eventId: eventId)),
     );
 
     setState(() {
-      scannedText = ''; // Reset scanned text after check-in
+      scannedText = '';
     });
   }
 
@@ -75,8 +95,6 @@ class _QRScanPageState extends State<QRScanPage> {
     final Color containerColor =
         isDarkMode ? const Color(0xFF8240A8) : Colors.white;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF58018B);
-    final Color titleColor =
-        isDarkMode ? const Color(0xFFFFC100) : const Color(0xFF58018B);
 
     return Scaffold(
       appBar: AppBar(
@@ -116,7 +134,7 @@ class _QRScanPageState extends State<QRScanPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hasil Scan: $scannedText', // Display the scanned username
+                    'Hasil Scan: $scannedText',
                     style: TextStyle(fontSize: 16, color: textColor),
                   ),
                   const SizedBox(height: 16),
@@ -131,8 +149,7 @@ class _QRScanPageState extends State<QRScanPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed:
-                        _handleCheckIn, // Handle the check-in with the username
+                    onPressed: _handleCheckIn,
                   ),
                 ],
               ),

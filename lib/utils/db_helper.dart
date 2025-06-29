@@ -13,7 +13,7 @@ class DBHelper {
   DBHelper._init();
 
   static const _dbName = 'event_manager.db';
-  static const _dbVersion = 3; // Versi saat ini (karena ada imageUrl)
+  static const _dbVersion = 4; // Menyesuaikan versi dengan perubahan terbaru
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -69,6 +69,18 @@ class DBHelper {
       )
     ''');
 
+    // Tabel Pembayaran
+    await db.execute(''' 
+      CREATE TABLE payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        event_id INTEGER NOT NULL,
+        is_paid INTEGER DEFAULT 0,  -- 0 untuk belum bayar, 1 untuk sudah bayar
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (event_id) REFERENCES events(id)
+      )
+    ''');
+
     // Tambah static admin jika belum ada
     final existingAdmin = await db.query(
       'users',
@@ -94,6 +106,19 @@ class DBHelper {
 
     if (oldVersion < 3) {
       await db.execute("ALTER TABLE events ADD COLUMN imageUrl TEXT");
+    }
+
+    if (oldVersion < 4) {
+      await db.execute('''
+        CREATE TABLE payments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          event_id INTEGER NOT NULL,
+          is_paid INTEGER DEFAULT 0,
+          FOREIGN KEY (user_id) REFERENCES users(id),
+          FOREIGN KEY (event_id) REFERENCES events(id)
+        )
+      ''');
     }
   }
 
@@ -132,7 +157,18 @@ class DBHelper {
   // ================= EVENT =================
   Future<int> insertEvent(Event event) async {
     final db = await instance.database;
-    return await db.insert('events', event.toMap());
+    // Pastikan hanya kolom yang ada di tabel events yang dimasukkan
+    final eventData = {
+      'title': event.title,
+      'description': event.description,
+      'date': event.date,
+      'time': event.time,
+      'location': event.location,
+      'hostName': event.hostName,
+      'imageUrl': event.imageUrl, // Jangan masukkan 'paidUsers'
+    };
+
+    return await db.insert('events', eventData);
   }
 
   Future<List<Event>> getAllEvents() async {
@@ -154,6 +190,43 @@ class DBHelper {
   Future<int> deleteEvent(int id) async {
     final db = await instance.database;
     return await db.delete('events', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // ================= PAYMENTS ================
+
+  // Memeriksa apakah pengguna sudah membayar untuk acara tertentu
+  Future<bool> isPaidForEvent(int userId, int eventId) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'payments',
+      where: 'user_id = ? AND event_id = ? AND is_paid = 1',
+      whereArgs: [userId, eventId],
+    );
+    return result.isNotEmpty;
+  }
+
+  // Menambahkan pembayaran untuk acara tertentu
+  Future<int> insertPayment(int userId, int eventId) async {
+    final db = await instance.database;
+
+    // Memeriksa apakah pembayaran untuk acara ini sudah ada
+    final existingPayment = await db.query(
+      'payments',
+      where: 'user_id = ? AND event_id = ?',
+      whereArgs: [userId, eventId],
+    );
+
+    // Jika sudah ada, kita tidak menambahkannya lagi
+    if (existingPayment.isNotEmpty) {
+      return 0; // Tidak ada yang perlu dilakukan
+    }
+
+    // Jika belum ada, tambahkan pembayaran baru
+    return await db.insert('payments', {
+      'user_id': userId,
+      'event_id': eventId,
+      'is_paid': 1, // Tandai sebagai sudah bayar
+    });
   }
 
   // ================= CHECK-IN LOG =================

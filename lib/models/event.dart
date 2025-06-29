@@ -7,6 +7,7 @@ class Event {
   final String location;
   final String hostName;
   final String? imageUrl; // Kolom tambahan untuk gambar
+  final List<String> paidUsers; // Menyimpan daftar username yang sudah bayar
 
   Event({
     this.id,
@@ -17,6 +18,7 @@ class Event {
     required this.location,
     required this.hostName,
     this.imageUrl,
+    this.paidUsers = const [], // Menambahkan default empty list
   });
 
   Map<String, dynamic> toMap() {
@@ -42,6 +44,9 @@ class Event {
       location: map['location'] as String,
       hostName: map['hostName'] as String,
       imageUrl: map['imageUrl'] as String?,
+      paidUsers:
+          (map['paidUsers'] as String?)?.split(',') ??
+          [], // Mengonversi string kembali ke list
     );
   }
 }

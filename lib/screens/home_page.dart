@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/event_provider.dart';
 import '../models/event.dart';
-import '../utils/db_helper.dart';
 import 'add_edit_event_page.dart';
 import 'qr_scan_page.dart';
 import 'settings_page.dart';
-import 'visitor_list_page.dart'; // Pastikan visitor_list_page diimport
+import 'visitor_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,6 +19,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<EventProvider>(context, listen: false).loadEvents();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +83,12 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const AddEditEventPage()),
-                  );
+                  ).then((_) {
+                    Provider.of<EventProvider>(
+                      context,
+                      listen: false,
+                    ).loadEvents();
+                  });
                 },
               )
               : null,
@@ -165,19 +178,9 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 15),
             Expanded(
-              child: FutureBuilder<List<Event>>(
-                future: DBHelper.instance.getAllEvents(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return const Center(child: Text('Terjadi kesalahan'));
-                  }
-
-                  final events = snapshot.data ?? [];
-
+              child: Consumer<EventProvider>(
+                builder: (context, eventProvider, _) {
+                  final events = eventProvider.events;
                   if (events.isEmpty) {
                     return const Center(child: Text('Tidak ada acara.'));
                   }
@@ -191,10 +194,14 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder:
-                                  (context) => AddEditEventPage(event: event),
+                              builder: (_) => AddEditEventPage(event: event),
                             ),
-                          );
+                          ).then((_) {
+                            Provider.of<EventProvider>(
+                              context,
+                              listen: false,
+                            ).loadEvents();
+                          });
                         },
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 15),
@@ -221,6 +228,8 @@ class _HomePageState extends State<HomePage> {
                                             )
                                             : Image.file(
                                               File(event.imageUrl!),
+                                              key:
+                                                  UniqueKey(), // 💥 FIX UTAMA: bikin rebuild image
                                               width: double.infinity,
                                               height: 150,
                                               fit: BoxFit.cover,
@@ -272,8 +281,6 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     const SizedBox(height: 5),
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           event.location,
@@ -290,14 +297,15 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                               ),
-                              // Tombol List Pengunjung jika ada yang check-in
                               ElevatedButton(
                                 onPressed: () {
-                                  // Arahkan ke VisitorListPage
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => const VisitorListPage(),
+                                      builder:
+                                          (_) => VisitorListPage(
+                                            eventId: event.id!,
+                                          ),
                                     ),
                                   );
                                 },

@@ -6,7 +6,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../models/event.dart';
 import 'upload_payment_page.dart';
 import '../providers/theme_provider.dart';
-import '../providers/auth_provider.dart'; // Import auth_provider untuk mengambil username
+import '../providers/auth_provider.dart';
+import 'dart:convert';
 
 class EventDetailPage extends StatefulWidget {
   final Event event;
@@ -26,15 +27,13 @@ class _EventDetailPageState extends State<EventDetailPage> {
     _checkPaymentStatus();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _checkPaymentStatus(); // Tambahkan ini supaya reload saat kembali
-  }
-
   Future<void> _checkPaymentStatus() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final username = authProvider.user?.username ?? "Guest";
+
     final prefs = await SharedPreferences.getInstance();
-    final paid = prefs.getBool('paid_event_${widget.event.id!}') ?? false;
+    final paid =
+        prefs.getBool('paid_event_${widget.event.id!}_$username') ?? false;
     setState(() {
       isPaid = paid;
     });
@@ -45,8 +44,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
 
-    // Dapatkan username pengguna yang sedang login
     final username = authProvider.user?.username ?? "Guest";
+
+    final qrData = jsonEncode({
+      'event_id': widget.event.id,
+      'username': username,
+    });
 
     return Scaffold(
       backgroundColor:
@@ -120,7 +123,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
               ),
               Center(
                 child: QrImageView(
-                  data: username, // Menggunakan username yang sedang login
+                  data: qrData,
                   version: QrVersions.auto,
                   size: 200.0,
                 ),
@@ -141,7 +144,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
                   );
                   if (result == true) {
                     final prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool('paid_event_${widget.event.id!}', true);
+                    await prefs.setBool(
+                      'paid_event_${widget.event.id!}_$username',
+                      true,
+                    );
                     _checkPaymentStatus();
                   }
                 },

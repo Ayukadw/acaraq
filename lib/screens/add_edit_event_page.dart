@@ -105,6 +105,7 @@ class _AddEditEventPageState extends State<AddEditEventPage> {
       } else {
         provider.updateEvent(newEvent);
       }
+      imageCache.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

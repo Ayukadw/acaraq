@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../models/event.dart';
-//import 'qr_code_page.dart'; // Import halaman QR
+import '../providers/auth_provider.dart';
+import '../utils/db_helper.dart';
 
 class UploadPaymentPage extends StatefulWidget {
   final Event event;
@@ -18,7 +20,6 @@ class _UploadPaymentPageState extends State<UploadPaymentPage> {
   File? _image;
   final _picker = ImagePicker();
 
-  // Fungsi untuk memilih gambar
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
@@ -28,7 +29,6 @@ class _UploadPaymentPageState extends State<UploadPaymentPage> {
     }
   }
 
-  // Fungsi untuk mengunggah gambar dan menyimpan status pembayaran
   Future<void> _uploadImage() async {
     if (_image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -37,20 +37,32 @@ class _UploadPaymentPageState extends State<UploadPaymentPage> {
       return;
     }
 
-    // Menyimpan bukti pembayaran dan menandakan status "paid" di SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(
-      'paid_event_${widget.event.id!}',
-      true,
-    ); // Menandakan pembayaran telah dilakukan
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final username = authProvider.user?.username ?? "Guest";
+    final userId = authProvider.user?.id ?? 0;
 
-    // Menampilkan notifikasi
+    if (userId == 0 || username == "Guest") {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('User tidak valid!')));
+      return;
+    }
+
+    // Update status paid di SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('paid_event_${widget.event.id!}_${username}', true);
+
+    // Simpan ke tabel payments di database
+    await DBHelper.instance.insertPayment(userId, widget.event.id!);
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Bukti pembayaran berhasil diunggah!')),
     );
 
-    // Setelah upload berhasil, langsung return true ke EventDetailPage untuk mengupdate statusnya
-    Navigator.pop(context, true); // Mengirimkan data ke halaman sebelumnya
+    Navigator.pop(
+      context,
+      true,
+    ); // Kembali ke EventDetailPage dengan status sukses
   }
 
   @override

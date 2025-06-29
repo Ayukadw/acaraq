@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/event_provider.dart';
 import '../providers/theme_provider.dart';
-import 'home_page.dart'; // Import HomePage
+import '../models/checkin_log.dart';
+import 'home_page.dart';
 
 class VisitorListPage extends StatefulWidget {
-  const VisitorListPage({Key? key}) : super(key: key);
+  final int eventId;
+
+  const VisitorListPage({Key? key, required this.eventId}) : super(key: key);
 
   @override
   _VisitorListPageState createState() => _VisitorListPageState();
@@ -15,32 +18,35 @@ class _VisitorListPageState extends State<VisitorListPage> {
   @override
   void initState() {
     super.initState();
-    // Load all check-in logs
-    Provider.of<EventProvider>(context, listen: false).loadCheckInLogsAll();
+    // Load check-in logs khusus eventId
+    Provider.of<EventProvider>(
+      context,
+      listen: false,
+    ).loadCheckInLogs(widget.eventId);
   }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    final Color textColor =
-        themeProvider.isDarkMode
-            ? const Color(0xFFFFC100)
-            : const Color(0xFF58018B);
-    final Color backgroundColor =
-        themeProvider.isDarkMode
-            ? const Color(0xFF58018B)
-            : const Color(0xFFECCBFF);
-    final Color cardColor =
-        themeProvider.isDarkMode ? const Color(0xFF8240A8) : Colors.white;
-    final Color headerColor =
-        themeProvider.isDarkMode
-            ? const Color(0xFFFFC100)
-            : const Color(0xFF58018B);
-
     return Consumer<EventProvider>(
       builder: (context, eventProvider, child) {
         final logs = eventProvider.checkInLogs;
+
+        final Color textColor =
+            themeProvider.isDarkMode
+                ? const Color(0xFFFFC100)
+                : const Color(0xFF58018B);
+        final Color backgroundColor =
+            themeProvider.isDarkMode
+                ? const Color(0xFF58018B)
+                : const Color(0xFFECCBFF);
+        final Color cardColor =
+            themeProvider.isDarkMode ? const Color(0xFF8240A8) : Colors.white;
+        final Color headerColor =
+            themeProvider.isDarkMode
+                ? const Color(0xFFFFC100)
+                : const Color(0xFF58018B);
 
         return Scaffold(
           backgroundColor: backgroundColor,
@@ -54,12 +60,10 @@ class _VisitorListPageState extends State<VisitorListPage> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: headerColor),
               onPressed: () {
-                // Navigasi kembali ke HomePage dan hapus semua halaman sebelumnya
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const HomePage()),
-                  (Route<dynamic> route) =>
-                      false, // Hapus semua halaman sebelumnya
+                  (Route<dynamic> route) => false,
                 );
               },
             ),
@@ -74,7 +78,6 @@ class _VisitorListPageState extends State<VisitorListPage> {
                   )
                   : Column(
                     children: [
-                      // Header bar
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20.0,
@@ -132,7 +135,7 @@ class _VisitorListPageState extends State<VisitorListPage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      log.guestName, // Display username from scanned QR code
+                                      log.guestName,
                                       style: TextStyle(
                                         color:
                                             themeProvider.isDarkMode
@@ -142,7 +145,7 @@ class _VisitorListPageState extends State<VisitorListPage> {
                                       ),
                                     ),
                                     Text(
-                                      log.checkinTime, // Display check-in time
+                                      log.checkinTime,
                                       style: TextStyle(
                                         color:
                                             themeProvider.isDarkMode

@@ -49,9 +49,7 @@ class EventProvider with ChangeNotifier {
   // Menambahkan check-in log ke database
   Future<void> addCheckIn(CheckInLog log) async {
     await DBHelper.instance.insertCheckIn(log);
-    await loadCheckInLogs(
-      log.eventId!,
-    ); // Add null assertion since eventId should not be null for check-in logs
+    await loadCheckInLogs(log.eventId!);
   }
 
   // Menghapus check-in log jika diperlukan
@@ -67,5 +65,17 @@ class EventProvider with ChangeNotifier {
     } catch (_) {
       return null;
     }
+  }
+
+  // Fungsi untuk mengecek apakah user sudah membayar untuk event tertentu
+  Future<bool> isUserPaidForEvent(int userId, int eventId) async {
+    final isPaid = await DBHelper.instance.isPaidForEvent(userId, eventId);
+    return isPaid;
+  }
+
+  // Fungsi untuk menambahkan pembayaran
+  Future<void> addPayment(int userId, int eventId) async {
+    await DBHelper.instance.insertPayment(userId, eventId);
+    notifyListeners(); // Notify listeners after adding payment
   }
 }
